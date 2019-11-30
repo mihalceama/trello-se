@@ -1,31 +1,41 @@
-const express = require('express')
-const app = express()
-const mongodb = require("mongodb")
+const express = require("express");
+const app = express();
+const mongodb = require("mongodb");
 const path = require("path");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
-mongodb.MongoClient.connect('mongodb://localhost:27017/trello', (err, client) => {
-  if (err) return console.log(err)
+mongodb.MongoClient.connect(
+  "mongodb://localhost:27017/trello",
+  (err, client) => {
+    if (err) return console.log(err);
 
-  console.log('Connected to database')
+    console.log("Connected to database");
 
-  db = client.db('trello');
+    db = client.db("trello");
 
-  app.listen(3000, function () {
-    console.log('Example app listening on port 3000!')
-  })
-})
+    app.listen(3000, function() {
+      console.log("Example app listening on port 3000!");
+    });
+  }
+);
 
-app.use([cors(), express.static(path.join(__dirname, "/frontend/dist"))])
+app.use([
+  cors(),
+  bodyParser(),
+  express.static(path.join(__dirname, "/frontend/dist"))
+]);
 
-app.get('/boards', function (req, res) {
-    db.collection('boards').find().toArray((err, result) => {
-        if (err) return console.log(err)
-        console.log(result)
-        res.send({
-          boards: result
-        })
-      })
+app.get("/boards", function(req, res) {
+  db.collection("boards")
+    .find()
+    .toArray((err, result) => {
+      if (err) return console.log(err);
+      console.log(result);
+      res.send({
+        boards: result
+      });
+    });
 });
 
 app.delete("/boards/:id", function(req, res) {
@@ -38,6 +48,19 @@ app.delete("/boards/:id", function(req, res) {
 
       res.send({
         _id: req.params.id
+      });
+    }
+  );
+});
+
+app.post("/boards", function(req, res) {
+  db.collection("boards").insert(
+    { board_name: req.body.board_name, cards: [] },
+    function(err, obj) {
+      if (err) return console.log(err);
+
+      res.send({
+        board: obj.ops[0]
       });
     }
   );
