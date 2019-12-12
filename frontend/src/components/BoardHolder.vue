@@ -1,6 +1,12 @@
 <template>
   <div class="row">
-    <Board v-for="board in boards" :key="board._id" :board="board" @deleteBoard="onBoardDelete" />
+    <Board
+      v-for="board in boards"
+      :key="board._id"
+      :board="board"
+      @deleteBoard="onBoardDelete"
+      @updateBoard="onBoardUpdate"
+    />
     <NewBoard @boardCreated="onBoardCreated" />
   </div>
 </template>
@@ -46,6 +52,19 @@ export default {
     },
     onBoardCreated: function(board) {
       this.boards.push(board);
+    },
+    onBoardUpdate: function(id, newName) {
+      axios
+        .put("http://localhost:3000/boards/" + id, {
+          board_name: newName
+        })
+        .then(res => {
+          const board_index = this.boards.findIndex(board => board._id === id);
+          this.boards[board_index].board_name = res.data.new_board_name;
+        })
+        .catch(err => {
+          this.err = err;
+        });
     }
   }
 };

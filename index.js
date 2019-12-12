@@ -65,3 +65,17 @@ app.post("/boards", function(req, res) {
     }
   );
 });
+
+app.put("/boards/:id", function(req, res) {
+  db.collection("boards").update(
+    { _id: new mongodb.ObjectID(req.params.id) },
+    { $set: { board_name: req.body.board_name } },
+    function(err, obj) {
+      if (err) return console.log(err);
+
+      res.send({
+        new_board_name: req.body.board_name
+      });
+    }
+  );
+});
